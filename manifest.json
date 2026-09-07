@@ -1,0 +1,17 @@
+{
+  "name": "備品管理",
+  "short_name": "備品管理",
+  "description": "スマホ内で完結する備品管理アプリ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#1976d2",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
