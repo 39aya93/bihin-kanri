@@ -36,7 +36,7 @@ hr{border:0;border-top:1px solid #ddd;margin:18px 0}
 </style>
 </head>
 <body>
-<header><h1>📦 備品管理</h1></header>
+<header><h1>📦 備品管理</h1><div id="activeDbName" style="font-size:13px;margin-top:4px;opacity:.9"></div></header>
 <main>
 
 <section id="homeScreen">
@@ -45,10 +45,29 @@ hr{border:0;border-top:1px solid #ddd;margin:18px 0}
     <button class="secondary" onclick="showAllItems()">📋 一覧を見る</button>
   </div>
 
+  <div class="card" style="margin-bottom:15px">
+    <div style="font-weight:bold;margin-bottom:8px">🗂 データベース</div>
+    <div class="menu" style="margin-bottom:8px">
+      <button class="primary" onclick="newDatabase()">＋ 新しいDB</button>
+      <label class="secondary" style="text-align:center;cursor:pointer;padding:11px 15px;border-radius:8px;display:block">📂 DBを選択
+        <input type="file" accept=".json,application/json" style="display:none" onchange="importDatabase(event)">
+      </label>
+    </div>
+    <button class="secondary full backup-button" onclick="exportDatabase()">💾 現在のDBを保存</button>
+    <button class="secondary full" onclick="showMaintenance()">⚙️ 候補リストを管理</button>
+    <div class="small" style="margin-top:8px">DBはJSONファイルとして保存できます。園芸用品・工具・家電など、目的ごとに別ファイルで管理できます。</div>
+  </div>
+
   <div class="search-box">
     <input id="searchInput" type="search" placeholder="名称・保管場所などで検索">
     <button class="primary" onclick="searchItems()">🔎</button>
   </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
+    <button class="secondary" onclick="setImageFilter('all')">すべて</button>
+    <button class="secondary" onclick="setImageFilter('with')">🖼 画像あり</button>
+    <button class="secondary" onclick="setImageFilter('without')">🚫 画像なし</button>
+  </div>
+  <div id="searchInfo" class="small" style="margin-bottom:8px"></div>
 
   <div id="itemList"></div>
   <hr>
@@ -168,6 +187,23 @@ hr{border:0;border-top:1px solid #ddd;margin:18px 0}
   </div>
 </section>
 
+
+<section id="maintenanceScreen" class="hidden">
+  <div class="card">
+    <h2>⚙️ 候補リスト管理</h2>
+    <div class="info-box">ここで削除しても、すでに登録されている備品の「保管場所」「購入先」は変更されません。</div>
+    <h3>保管場所</h3>
+    <div id="locationCandidates"></div>
+    <button class="secondary full" onclick="addLocation()">＋ 保管場所を追加</button>
+    <hr>
+    <h3>購入先</h3>
+    <div id="storeCandidates"></div>
+    <button class="secondary full" onclick="addStore()">＋ 購入先を追加</button>
+    <br><br>
+    <button class="secondary full" onclick="showHome()">戻る</button>
+  </div>
+</section>
+
 </main>
 
 <script>
@@ -175,11 +211,15 @@ const DB_NAME="BihinKanriDB";
 const DB_VERSION=2;
 const STORE_NAME="items";
 const SETTINGS_KEY="BihinKanriSettings";
+const ACTIVE_DB_KEY="BihinKanriActiveDBName";
+const ACTIVE_DB_FORMAT_VERSION=3;
 
 let db;
 let currentItemId=null;
 let editingId=null;
 let selectedImageData=null;
+let imageFilter="all";
+let activeDbName=localStorage.getItem(ACTIVE_DB_KEY)||"備品管理";
 
 const DEFAULT_LOCATIONS=["工具棚A","工具棚B","ガレージ","物置","パントリー","倉庫","車庫"];
 const DEFAULT_STORES=["カインズ","コーナン","Amazon","楽天市場","モノタロウ","その他"];
@@ -200,6 +240,11 @@ function getSettings(){
 
 function saveSettings(settings){
   localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));
+}
+
+function updateDbName(){
+  document.getElementById("activeDbName").textContent="現在のDB："+activeDbName;
+  localStorage.setItem(ACTIVE_DB_KEY,activeDbName);
 }
 
 function refreshLocationList(selectedValue=""){
@@ -512,67 +557,77 @@ function displayItems(items){
   const list=document.getElementById("itemList");
   list.innerHTML="";
 
-  if(!items.length){
-    list.innerHTML='<div class="empty">登録された備品はありません。</div>';
+  let filtered=items.filter(item=>{
+    if(imageFilter==="with")return !!item.image;
+    if(imageFilter==="without")return !item.image;
+    return true;
+  });
+
+  const info=document.getElementById("searchInfo");
+  if(info)info.textContent=filtered.length+"件"+(imageFilter==="with"?"（画像あり）":imageFilter==="without"?"（画像なし）":"");
+
+  if(!filtered.length){
+    list.innerHTML='<div class="empty">該当する備品はありません。</div>';
     return;
   }
 
-  items.sort((a,b)=>(a.name||"").localeCompare(b.name||"","ja"));
+  filtered.sort((a,b)=>(a.name||"").localeCompare(b.name||"","ja"));
 
-  items.forEach(item=>{
+  filtered.forEach(item=>{
     const card=document.createElement("div");
     card.className="card item-card";
     card.onclick=()=>showDetail(item.id);
 
-    const image=document.createElement("img");
-    image.className="item-image";
-    image.src=item.image||"";
-    image.alt=item.name||"";
+    if(item.image){
+      const image=document.createElement("img");
+      image.className="item-image";
+      image.src=item.image;
+      image.alt=item.name||"";
+      card.appendChild(image);
+    }else{
+      const noImage=document.createElement("div");
+      noImage.className="item-image";
+      noImage.style.display="flex";noImage.style.alignItems="center";noImage.style.justifyContent="center";noImage.style.fontSize="28px";
+      noImage.textContent="📦";
+      card.appendChild(noImage);
+    }
 
-    const info=document.createElement("div");
-    info.className="item-info";
-
+    const infoEl=document.createElement("div");
+    infoEl.className="item-info";
     const name=document.createElement("div");
-    name.className="item-name";
-    name.textContent=item.name||"名称なし";
-
+    name.className="item-name";name.textContent=item.name||"名称なし";
     const location=document.createElement("div");
-    location.className="item-location";
-    location.textContent="📍 "+(item.location||"未設定");
-
+    location.className="item-location";location.textContent="📍 "+(item.location||"未設定");
+    const quantity=document.createElement("div");
+    quantity.textContent="個数： "+(item.quantity!==undefined&&item.quantity!==""?Number(item.quantity).toLocaleString()+"個":"未設定");
     const expiry=document.createElement("div");
     expiry.textContent="期限： "+(item.expiry||"なし");
     setExpiryClass(expiry,item.expiry);
-
-    const quantity=document.createElement("div");
-    quantity.textContent="個数： "+(item.quantity!==undefined && item.quantity!=="" ? Number(item.quantity).toLocaleString()+"個" : "未設定");
-
-    info.appendChild(name);
-    info.appendChild(location);
-    info.appendChild(quantity);
-    info.appendChild(expiry);
-    card.appendChild(image);
-    card.appendChild(info);
-    list.appendChild(card);
+    infoEl.appendChild(name);infoEl.appendChild(location);infoEl.appendChild(quantity);infoEl.appendChild(expiry);
+    card.appendChild(infoEl);list.appendChild(card);
   });
 }
 
+function setImageFilter(filter){
+  imageFilter=filter;
+  searchItems();
+}
+
 async function searchItems(){
-  const keyword=document.getElementById("searchInput").value.trim().toLowerCase();
+  const keyword=normalizeJapanese(document.getElementById("searchInput").value.trim());
   const items=await getAllItems();
-
-  if(!keyword){
-    displayItems(items);
-    return;
-  }
-
-  const result=items.filter(item=>{
-    const text=[item.name,item.spec,item.location,item.store,item.memo]
-      .join(" ").toLowerCase();
+  const result=!keyword?items:items.filter(item=>{
+    const text=[item.name,item.spec,item.location,item.store,item.memo,item.quantity]
+      .map(normalizeJapanese).join(" ");
     return text.includes(keyword);
   });
-
   displayItems(result);
+}
+
+function normalizeJapanese(text){
+  return String(text??"").normalize("NFKC")
+    .replace(/[\u30a1-\u30f6]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0x60))
+    .toLowerCase();
 }
 
 async function showDetail(id){
@@ -752,32 +807,82 @@ async function clearCache(){
    バックアップ
 ========================= */
 
-async function exportBackup(){
+async function exportDatabase(){
   const items=await getAllItems();
   const settings=getSettings();
-
   const data={
-    version:2,
+    formatVersion:ACTIVE_DB_FORMAT_VERSION,
+    dbName:activeDbName,
     exportedAt:new Date().toISOString(),
-    settings:{
-      locations:settings.locations,
-      stores:settings.stores
-    },
+    settings:{locations:settings.locations,stores:settings.stores},
     items:items
   };
+  downloadJson(data,activeDbName+"_DB_"+new Date().toISOString().slice(0,10)+".json");
+}
 
+async function exportBackup(){
+  await exportDatabase();
+}
+
+function downloadJson(data,filename){
   const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  const date=new Date().toISOString().slice(0,10);
-
-  a.href=url;
-  a.download="備品管理バックアップ_"+date+".json";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-
+  const a=document.createElement("a");a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+async function importDatabase(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  try{
+    const text=await file.text();
+    const data=JSON.parse(text);
+    if(!Array.isArray(data.items))throw new Error("DBファイルの形式が不正です。");
+    if(!confirm("現在のDBを「"+((data.dbName||file.name).replace(/\.json$/i,""))+"」に切り替えますか？\n\n現在のDBを保存していない場合は、先に「現在のDBを保存」してください。"))return;
+    await clearDB();
+    for(const raw of data.items){
+      if(!raw||typeof raw!=="object")continue;
+      const item={...raw,id:raw.id?String(raw.id):createId()};
+      const now=new Date().toISOString();
+      if(!item.createdAt)item.createdAt=now;if(!item.updatedAt)item.updatedAt=now;
+      await saveToDB(item);
+    }
+    if(data.settings&&typeof data.settings==="object"){
+      saveSettings({
+        locations:Array.isArray(data.settings.locations)?data.settings.locations:[...DEFAULT_LOCATIONS],
+        stores:Array.isArray(data.settings.stores)?data.settings.stores:[...DEFAULT_STORES]
+      });
+    }else{
+      saveSettings({locations:[...DEFAULT_LOCATIONS],stores:[...DEFAULT_STORES]});
+    }
+    activeDbName=(data.dbName||file.name.replace(/\.json$/i,""))||"備品管理";
+    updateDbName();
+    refreshLocationList();refreshStoreList();
+    alert("DBを読み込みました。\n\n"+activeDbName+"\n"+data.items.length+"件");
+    showAllItems();
+  }catch(e){alert("DBの読み込みに失敗しました。\n\n"+e.message);}
+  event.target.value="";
+}
+
+async function clearDB(){
+  const items=await getAllItems();
+  for(const item of items)await deleteFromDB(item.id);
+}
+
+async function newDatabase(){
+  const name=prompt("新しいDB名を入力してください。\n例：園芸用品、工具、家電など","");
+  if(name===null)return;
+  const newName=name.trim();
+  if(!newName){alert("DB名を入力してください。");return;}
+  if(!confirm("新しいDB「"+newName+"」を作成します。\n\n現在のDBを保存していない場合は、先に保存してください。\n\n現在の登録データは新しいDBには引き継ぎません。"))return;
+  await clearDB();
+  activeDbName=newName;updateDbName();
+  saveSettings({locations:[...DEFAULT_LOCATIONS],stores:[...DEFAULT_STORES]});
+  imageFilter="all";document.getElementById("searchInput").value="";
+  refreshLocationList();refreshStoreList();
+  await showAllItems();
+  alert("新しいDBを作成しました。\n\n「現在のDBを保存」でファイルとして保存できます。");
 }
 
 /* =========================
@@ -903,12 +1008,51 @@ async function mergeBackup(event){
   event.target.value="";
 }
 
+function showMaintenance(){
+  hideAllScreens();
+  document.getElementById("maintenanceScreen").classList.remove("hidden");
+  renderCandidates();
+}
+
+async function renderCandidates(){
+  const settings=getSettings();
+  const items=await getAllItems();
+  const locCounts={},storeCounts={};
+  items.forEach(item=>{if(item.location)locCounts[item.location]=(locCounts[item.location]||0)+1;if(item.store)storeCounts[item.store]=(storeCounts[item.store]||0)+1;});
+  const loc=document.getElementById("locationCandidates");loc.innerHTML="";
+  settings.locations.forEach((value,i)=>{
+    const row=document.createElement("div");row.className="card";row.style.display="flex";row.style.justifyContent="space-between";row.style.alignItems="center";
+    row.innerHTML="<div>"+escapeHtml(value)+"<div class='small'>登録済み"+(locCounts[value]||0)+"件で使用中</div></div>";
+    const b=document.createElement("button");b.className="danger";b.textContent="削除";b.onclick=()=>deleteCandidate("location",i,value,locCounts[value]||0);row.appendChild(b);loc.appendChild(row);
+  });
+  const st=document.getElementById("storeCandidates");st.innerHTML="";
+  settings.stores.forEach((value,i)=>{
+    const row=document.createElement("div");row.className="card";row.style.display="flex";row.style.justifyContent="space-between";row.style.alignItems="center";
+    row.innerHTML="<div>"+escapeHtml(value)+"<div class='small'>登録済み"+(storeCounts[value]||0)+"件で使用中</div></div>";
+    const b=document.createElement("button");b.className="danger";b.textContent="削除";b.onclick=()=>deleteCandidate("store",i,value,storeCounts[value]||0);row.appendChild(b);st.appendChild(row);
+  });
+}
+
+function escapeHtml(text){const d=document.createElement("div");d.textContent=text;return d.innerHTML;}
+
+function deleteCandidate(type,index,value,count){
+  const label=type==="location"?"保管場所":"購入先";
+  const usage=count?"\n\n現在、"+count+"件の登録データで使用されています。削除しても登録済みデータは変更されません。":"";
+  if(!confirm("「"+value+"」を候補リストから削除しますか？"+usage+"\n\n次の確認でOKを押すと削除、キャンセルすると復元します。"))return;
+  if(!confirm("本当に「"+value+"」を候補リストから削除しますか？\n\n※登録済み備品の値はそのまま残ります。"))return;
+  const settings=getSettings();
+  const arr=type==="location"?settings.locations:settings.stores;
+  if(arr[index]===value)arr.splice(index,1);else{const i=arr.indexOf(value);if(i>=0)arr.splice(i,1);}
+  saveSettings(settings);renderCandidates();refreshLocationList();refreshStoreList();
+}
+
 /* =========================
    初期化
 ========================= */
 
 async function init(){
   await openDB();
+  updateDbName();
   refreshLocationList();
   refreshStoreList();
   await showAllItems();
@@ -918,7 +1062,7 @@ init();
 
 if("serviceWorker" in navigator){
   window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("sw.js")
+    navigator.serviceWorker.register("sw.js?v=3")
       .catch(error=>console.log("Service Worker:",error));
   });
 }
