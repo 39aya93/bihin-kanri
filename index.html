@@ -32,7 +32,7 @@ hr{border:0;border-top:1px solid #ddd;margin:18px 0}
 .image-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}.image-buttons button{padding:13px 8px}
 .select-with-button{display:grid;grid-template-columns:1fr auto;gap:8px}.add-button{white-space:nowrap;background:#e5e7eb}
 .backup-button{margin-bottom:8px}
-.info-box{background:#eef5ff;border-radius:8px;padding:12px;margin-bottom:12px;font-size:14px}
+.info-box{background:#eef5ff;border-radius:8px;padding:12px;margin-bottom:12px;font-size:14px}.setting-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin:7px 0}.setting-row button{padding:8px 12px}.setting-used{font-size:12px;color:#777}
 </style>
 </head>
 <body>
@@ -53,6 +53,8 @@ hr{border:0;border-top:1px solid #ddd;margin:18px 0}
   <div id="itemList"></div>
   <hr>
 
+  <button class="secondary full backup-button" onclick="openSettings()">⚙️ 購入先・保管場所をメンテナンス</button>
+  <button class="secondary full backup-button" onclick="clearCache()">🧹 キャッシュをクリアして再読み込み</button>
   <button class="secondary full backup-button" onclick="exportBackup()">💾 バックアップを書き出す</button>
 
   <label class="secondary full backup-button" style="display:block;text-align:center;cursor:pointer;">
@@ -77,6 +79,11 @@ hr{border:0;border-top:1px solid #ddd;margin:18px 0}
     <div class="form-group">
       <label>仕様（サイズ）</label>
       <input id="spec" type="text">
+    </div>
+
+    <div class="form-group">
+      <label>個数</label>
+      <input id="quantity" type="number" min="0" step="1" inputmode="numeric">
     </div>
 
     <div class="form-group">
@@ -133,6 +140,22 @@ hr{border:0;border-top:1px solid #ddd;margin:18px 0}
   </div>
 </section>
 
+<section id="settingsScreen" class="hidden">
+  <div class="card">
+    <h2>候補リストのメンテナンス</h2>
+    <div class="info-box">候補から削除しても、登録済み備品の「保管場所」「購入先」は変更しません。登録済みデータで使用中の候補を削除する場合は警告を表示します。</div>
+    <h3>保管場所</h3>
+    <div id="locationMaintenance"></div>
+    <button class="primary full" onclick="addLocationFromSettings()">＋ 保管場所を追加</button>
+    <hr>
+    <h3>購入先</h3>
+    <div id="storeMaintenance"></div>
+    <button class="primary full" onclick="addStoreFromSettings()">＋ 購入先を追加</button>
+    <br><br>
+    <button class="secondary full" onclick="showHome()">戻る</button>
+  </div>
+</section>
+
 <section id="detailScreen" class="hidden">
   <div class="card">
     <div id="detailContent"></div>
@@ -149,7 +172,7 @@ hr{border:0;border-top:1px solid #ddd;margin:18px 0}
 
 <script>
 const DB_NAME="BihinKanriDB";
-const DB_VERSION=1;
+const DB_VERSION=2;
 const STORE_NAME="items";
 const SETTINGS_KEY="BihinKanriSettings";
 
@@ -384,6 +407,7 @@ async function saveItem(){
   const now=new Date().toISOString();
   const location=document.getElementById("location").value;
   const store=document.getElementById("store").value;
+  const quantity=document.getElementById("quantity").value===""?"":Math.max(0,parseInt(document.getElementById("quantity").value,10)||0);
 
   const settings=getSettings();
 
@@ -408,6 +432,7 @@ async function saveItem(){
       ...oldItem,
       name:name,
       spec:document.getElementById("spec").value.trim(),
+      quantity:quantity,
       location:location,
       obtained:document.getElementById("obtained").value,
       expiry:document.getElementById("expiry").value,
@@ -453,6 +478,7 @@ async function editItem(id){
 
   document.getElementById("name").value=item.name||"";
   document.getElementById("spec").value=item.spec||"";
+  document.getElementById("quantity").value=item.quantity ?? "";
   document.getElementById("obtained").value=item.obtained||"";
   document.getElementById("expiry").value=item.expiry||"";
   document.getElementById("price").value=item.price||"";
@@ -518,8 +544,12 @@ function displayItems(items){
     expiry.textContent="期限： "+(item.expiry||"なし");
     setExpiryClass(expiry,item.expiry);
 
+    const quantity=document.createElement("div");
+    quantity.textContent="個数： "+(item.quantity!==undefined && item.quantity!=="" ? Number(item.quantity).toLocaleString()+"個" : "未設定");
+
     info.appendChild(name);
     info.appendChild(location);
+    info.appendChild(quantity);
     info.appendChild(expiry);
     card.appendChild(image);
     card.appendChild(info);
@@ -566,6 +596,7 @@ async function showDetail(id){
 
   addDetail(container,"名称",item.name);
   addDetail(container,"仕様（サイズ）",item.spec);
+  addDetail(container,"個数",item.quantity!==undefined && item.quantity!=="" ? Number(item.quantity).toLocaleString()+" 個" : "");
   addDetail(container,"保管場所",item.location);
   addDetail(container,"入手時期",item.obtained);
 
@@ -625,6 +656,96 @@ async function deleteCurrentItem(){
   currentItemId=null;
   alert("削除しました。");
   showHome();
+}
+
+/* =========================
+   候補リスト メンテナンス
+========================= */
+function openSettings(){
+  hideAllScreens();
+  document.getElementById("settingsScreen").classList.remove("hidden");
+  renderSettings();
+}
+
+async function renderSettings(){
+  const settings=getSettings();
+  const items=await getAllItems();
+  renderSettingList("locationMaintenance",settings.locations,"locations",items);
+  renderSettingList("storeMaintenance",settings.stores,"stores",items);
+}
+
+function renderSettingList(containerId,list,key,items){
+  const container=document.getElementById(containerId);
+  container.innerHTML="";
+  list.forEach((value,index)=>{
+    const used=items.filter(item=>String(item[key==="locations"?"location":"store"]||"")===String(value)).length;
+    const row=document.createElement("div");
+    row.className="setting-row";
+    const label=document.createElement("div");
+    label.innerHTML="<b>"+escapeHtml(value)+"</b>"+(used?'<div class="setting-used">登録済み '+used+'件で使用中</div>':"");
+    const btn=document.createElement("button");
+    btn.className="danger";
+    btn.textContent="削除";
+    btn.onclick=()=>removeSetting(key,index,value,used);
+    row.appendChild(label);row.appendChild(btn);container.appendChild(row);
+  });
+}
+
+function escapeHtml(value){
+  return String(value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
+}
+
+async function removeSetting(key,index,value,used){
+  const label=key==="locations"?"保管場所":"購入先";
+  if(used>0){
+    const answer=confirm("WARNING\n\n「"+value+"」は現在、登録済み備品「"+used+"件」で使用されています。\n\n候補リストから削除しますか？\n\n※削除しても登録済み備品のデータは変更されません。\n\n[OK] 削除する\n[キャンセル] 削除しない");
+    if(!answer)return;
+    const restore=confirm("確認\n\n「"+value+"」は登録済みデータで使用中です。\n候補リストから削除したままにしますか？\n\n[OK] 削除したまま\n[キャンセル] 候補に戻す");
+    if(!restore)return;
+  }else{
+    if(!confirm("「"+value+"」を候補リストから削除しますか？"))return;
+  }
+  const settings=getSettings();
+  settings[key].splice(index,1);
+  saveSettings(settings);
+  await renderSettings();
+  alert(label+"の候補を削除しました。\n登録済みデータは変更していません。");
+}
+
+function addLocationFromSettings(){
+  const value=prompt("追加する保管場所を入力してください。");
+  if(value===null)return;
+  const name=value.trim();if(!name)return;
+  const settings=getSettings();
+  if(settings.locations.includes(name)){alert("すでに登録されています。");return;}
+  settings.locations.push(name);saveSettings(settings);renderSettings();
+}
+
+function addStoreFromSettings(){
+  const value=prompt("追加する購入先を入力してください。");
+  if(value===null)return;
+  const name=value.trim();if(!name)return;
+  const settings=getSettings();
+  if(settings.stores.includes(name)){alert("すでに登録されています。");return;}
+  settings.stores.push(name);saveSettings(settings);renderSettings();
+}
+
+/* =========================
+   キャッシュクリア
+========================= */
+async function clearCache(){
+  if(!confirm("キャッシュをクリアしてアプリを再読み込みします。\n\n備品データや候補リストは削除されません。\n実行しますか？"))return;
+  try{
+    if("caches" in window){
+      const keys=await caches.keys();
+      await Promise.all(keys.map(key=>caches.delete(key)));
+    }
+    if("serviceWorker" in navigator){
+      const registrations=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map(r=>r.update()));
+    }
+  }catch(e){console.log(e);}
+  location.reload();
 }
 
 /* =========================
