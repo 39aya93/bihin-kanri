@@ -97,7 +97,7 @@ let activeDbName=localStorage.getItem(ACTIVE_DB_KEY)||'備品管理';
 const $=id=>document.getElementById(id);
 function createId(){return 'I'+Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
 function hideAllScreens(){['homeScreen','formScreen','detailScreen','maintenanceScreen'].forEach(id=>$(id).classList.add('hidden'))}
-function showHome(){hideAllScreens();$('homeScreen').classList.remove('hidden');updateDbName();refreshList()}
+function showHome(){document.querySelectorAll('main > section').forEach(section=>section.classList.add('hidden'));$('homeScreen').classList.remove('hidden');updateDbName();refreshList()}
 function updateDbName(){ $('activeDbName').textContent='現在のDB：'+activeDbName; localStorage.setItem(ACTIVE_DB_KEY,activeDbName) }
 function getSettings(){
  const s=localStorage.getItem(LEGACY_SETTINGS); if(!s)return {locations:[...DEFAULT_LOCATIONS],stores:[...DEFAULT_STORES]};
@@ -138,7 +138,7 @@ async function showDetail(id){const item=await getItem(id);if(!item)return;curre
 function addDetail(c,label,value){const r=document.createElement('div');r.className='detail-row';const l=document.createElement('div');l.className='detail-label';l.textContent=label;const v=document.createElement('div');v.className='detail-value';v.textContent=value||'－';r.append(l,v);c.appendChild(r);return r}
 async function deleteCurrentItem(){if(!currentItemId)return;const item=await getItem(currentItemId);if(!item||!confirm('「'+item.name+'」を削除しますか？'))return;await deleteFromDB(currentItemId);currentItemId=null;alert('削除しました。');showHome()}
 
-async function showMaintenance(){hideAllScreens();$('maintenanceScreen').classList.remove('hidden');const s=getSettings(),items=await getAllItems();renderSettingList('locationMaintenance',s.locations,'location',items);renderSettingList('storeMaintenance',s.stores,'store',items)}
+async function showMaintenance(){document.querySelectorAll('main > section').forEach(section=>section.classList.add('hidden'));$('maintenanceScreen').classList.remove('hidden');const s=getSettings(),items=await getAllItems();renderSettingList('locationMaintenance',s.locations,'location',items);renderSettingList('storeMaintenance',s.stores,'store',items)}
 function renderSettingList(id,list,type,items){const c=$(id);c.innerHTML='';list.forEach((v,i)=>{const count=items.filter(x=>(x[type]||'')===v).length;const row=document.createElement('div');row.className='setting-row';const label=document.createElement('div');label.innerHTML='<b>'+escapeHtml(v)+'</b>'+(count?'<div class="setting-used">登録済み '+count+'件で使用中</div>':'');const b=document.createElement('button');b.className='danger';b.textContent='削除';b.onclick=()=>removeCandidate(type,i,v,count);row.append(label,b);c.appendChild(row)})}
 function escapeHtml(v){const d=document.createElement('div');d.textContent=v;return d.innerHTML}
 async function removeCandidate(type,index,value,count){const label=type==='location'?'保管場所':'購入先';if(count){if(!confirm('「'+value+'」は登録済み '+count+'件で使用中です。\n\n候補から削除しますか？\n\n※登録済みデータは変更されません。'))return;if(!confirm('もう一度確認します。\n「'+value+'」を候補から削除しますか？\n\nOK：削除する\nキャンセル：削除しない'))return}else if(!confirm('「'+value+'」を候補から削除しますか？'))return;const s=getSettings(),arr=type==='location'?s.locations:s.stores;arr.splice(index,1);saveSettings(s);await showMaintenance();alert(label+'の候補を削除しました。登録済みデータは変更していません。')}
