@@ -20,16 +20,8 @@
       <button class="primary" onclick="newDatabase()">＋ 新しいDB</button>
       <button class="secondary" onclick="openDbSelector()">📂 DBを選択</button>
     </div>
-    <div id="savedDbSelector" class="hidden">
-      <div class="info-box">「現在のDBを保存」で保存したDBだけを選択できます。</div>
-      <select id="savedDbSelect"><option value="">保存済みDBを選択</option></select>
-      <br><br>
-      <button class="secondary full" onclick="loadSelectedSavedDb()">📂 選択したDBを開く</button>
-      <br><br>
-      <label class="secondary full" style="display:block;text-align:center;cursor:pointer">📥 外部DBファイルを読み込む
-        <input type="file" accept=".json,application/json" style="display:none" onchange="importDatabase(event)">
-      </label>
-    </div>
+    <button class="primary full" onclick="saveCurrentDb()">💾 現在のDBを保存</button>
+    <div class="small" style="margin-top:6px;margin-bottom:8px">保存すると「DBを選択」から呼び出せます。</div>
     <button class="secondary full" onclick="showMaintenance()">⚙️ 候補リストを管理</button>
   </div>
 
@@ -60,6 +52,19 @@
     <input type="file" accept=".json,application/json" style="display:none" onchange="mergeBackup(event)">
   </label>
 </section>
+
+<section id="dbScreen" class="hidden"><div class="card">
+<h2>📂 DBを選択</h2>
+<div class="info-box">ここで選択した保存済みDBを開きます。<br>現在のDBの未保存変更は、DBを切り替えると引き継がれません。</div>
+<label class="form-group"><b>保存済みDB</b><select id="savedDbSelect"><option value="">保存済みDBを選択</option></select></label>
+<button class="primary full" onclick="loadSelectedSavedDb()">📂 選択したDBを開く</button>
+<br><br>
+<label class="secondary full" style="display:block;text-align:center;cursor:pointer">📥 外部DBファイルを読み込む
+  <input type="file" accept=".json,application/json" style="display:none" onchange="importDatabase(event)">
+</label>
+<br>
+<button class="secondary full" onclick="showHome()">↩ 現在のDBのまま</button>
+</div></section>
 
 <section id="formScreen" class="hidden"><div class="card">
 <h2 id="formTitle">備品登録</h2>
@@ -96,7 +101,7 @@ let activeDbName=localStorage.getItem(ACTIVE_DB_KEY)||'備品管理';
 
 const $=id=>document.getElementById(id);
 function createId(){return 'I'+Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
-function hideAllScreens(){['homeScreen','formScreen','detailScreen','maintenanceScreen'].forEach(id=>$(id).classList.add('hidden'))}
+function hideAllScreens(){document.querySelectorAll('main > section').forEach(section=>section.classList.add('hidden'))}
 function showHome(){document.querySelectorAll('main > section').forEach(section=>section.classList.add('hidden'));$('homeScreen').classList.remove('hidden');updateDbName();refreshList()}
 function updateDbName(){ $('activeDbName').textContent='現在のDB：'+activeDbName; localStorage.setItem(ACTIVE_DB_KEY,activeDbName) }
 function getSettings(){
@@ -145,12 +150,13 @@ async function removeCandidate(type,index,value,count){const label=type==='locat
 function addLocationFromSettings(){addCandidate('location')}function addStoreFromSettings(){addCandidate('store')}
 async function addCandidate(type){const label=type==='location'?'保管場所':'購入先';const v=prompt('追加する'+label+'を入力してください。');if(v===null)return;const n=v.trim();if(!n)return;const s=getSettings(),arr=type==='location'?s.locations:s.stores;if(arr.includes(n)){alert('すでに登録されています。');return}arr.push(n);saveSettings(s);await showMaintenance()}
 
-async function exportDatabase(){const items=await getAllItems(),s=getSettings();const data={formatVersion:4,dbName:activeDbName,exportedAt:new Date().toISOString(),settings:s,items};await saveCatalog({name:activeDbName,dbName:activeDbName,settings:s,items:JSON.parse(JSON.stringify(items)),savedAt:new Date().toISOString()});downloadJson(data,activeDbName+'_DB_'+today()+'.json');await refreshSavedDbSelector();alert('「'+activeDbName+'」を保存しました。\n\n次回から「DBを選択」でこのDBを選べます。')}
+async function saveCurrentDb(){const items=await getAllItems(),s=getSettings();const now=new Date().toISOString();await saveCatalog({name:activeDbName,dbName:activeDbName,settings:s,items:JSON.parse(JSON.stringify(items)),savedAt:now});await refreshSavedDbSelector();alert('「'+activeDbName+'」を保存しました。\n\n次回から「DBを選択」でこのDBを開けます。')}
+async function exportDatabase(){const items=await getAllItems(),s=getSettings();const data={formatVersion:4,dbName:activeDbName,exportedAt:new Date().toISOString(),settings:s,items};downloadJson(data,activeDbName+'_DB_'+today()+'.json');alert('DBファイルを書き出しました。')}
 function exportBackup(){exportDatabase()}
 function downloadJson(data,name){const blob=new Blob([JSON.stringify(data)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}function today(){return new Date().toISOString().slice(0,10)}
-async function openDbSelector(){const box=$('savedDbSelector');box.classList.toggle('hidden');if(!box.classList.contains('hidden'))await refreshSavedDbSelector()}
-async function refreshSavedDbSelector(){const s=$('savedDbSelect'),list=await getCatalogs();list.sort((a,b)=>String(a.name).localeCompare(String(b.name),'ja'));s.innerHTML='<option value="">保存済みDBを選択</option>';list.forEach(x=>{const o=document.createElement('option');o.value=x.name;o.textContent=x.name;s.appendChild(o)})}
-async function loadSelectedSavedDb(){const name=$('savedDbSelect').value;if(!name){alert('DBを選択してください。');return}const data=await getCatalog(name);if(!data){alert('保存済みDBが見つかりません。');return}if(!confirm('保存済みDB「'+name+'」を開きますか？\n\n現在のDBの未保存変更は引き継がれません。'))return;await loadDatabaseData(data);$('savedDbSelector').classList.add('hidden');alert('DBを開きました。\n\n'+name+'：'+(data.items||[]).length+'件')}
+async function openDbSelector(){hideAllScreens();$('dbScreen').classList.remove('hidden');await refreshSavedDbSelector()}
+async function refreshSavedDbSelector(){const s=$('savedDbSelect');if(!s)return;const list=await getCatalogs();list.sort((a,b)=>String(a.name).localeCompare(String(b.name),'ja'));s.innerHTML='<option value="">保存済みDBを選択</option>';list.forEach(x=>{const o=document.createElement('option');o.value=x.name;o.textContent=x.name;s.appendChild(o)})}
+async function loadSelectedSavedDb(){const name=$('savedDbSelect').value;if(!name){alert('DBを選択してください。');return}const data=await getCatalog(name);if(!data){alert('保存済みDBが見つかりません。');return}if(!confirm('保存済みDB「'+name+'」を開きますか？\n\n現在のDBの未保存変更は引き継がれません。'))return;await loadDatabaseData(data);showHome();alert('DBを開きました。\n\n'+name+'：'+(data.items||[]).length+'件')}
 async function loadDatabaseData(data){await clearDB();for(const raw of data.items||[]){if(!raw||typeof raw!=='object')continue;const item={...raw,id:raw.id?String(raw.id):createId()};const now=new Date().toISOString();if(!item.createdAt)item.createdAt=now;if(!item.updatedAt)item.updatedAt=now;await saveToDB(item)}setSettings({locations:Array.isArray(data.settings?.locations)?data.settings.locations:DEFAULT_LOCATIONS,stores:Array.isArray(data.settings?.stores)?data.settings.stores:DEFAULT_STORES});activeDbName=data.dbName||data.name||'備品管理';updateDbName();$('searchInput').value='';imageFilter='all';setImageFilter('all')}
 async function newDatabase(){const v=prompt('新しいDB名を入力してください。\n例：園芸用品、工具、家電など');if(v===null)return;const name=v.trim();if(!name)return;if(!confirm('新しいDB「'+name+'」を作成しますか？\n\n現在のDBを保存していない場合は、先に「現在のDBを保存」してください。'))return;await clearDB();activeDbName=name;updateDbName();setSettings({locations:[...DEFAULT_LOCATIONS],stores:[...DEFAULT_STORES]});$('searchInput').value='';imageFilter='all';setImageFilter('all');await refreshSavedDbSelector();alert('新しいDBを作成しました。\n\nまだ「保存済みDB」にはなっていません。\n必要なら「現在のDBを保存」を押してください。')}
 async function importDatabase(e){const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data.items))throw new Error('DBファイルの形式が不正です。');data.dbName=data.dbName||f.name.replace(/\.json$/i,'');await saveCatalog({name:data.dbName,dbName:data.dbName,settings:{locations:Array.isArray(data.settings?.locations)?data.settings.locations:DEFAULT_LOCATIONS,stores:Array.isArray(data.settings?.stores)?data.settings.stores:DEFAULT_STORES},items:data.items,savedAt:new Date().toISOString()});await loadDatabaseData(data);await refreshSavedDbSelector();alert('DBファイルを読み込みました。\n\n'+data.dbName+'：'+data.items.length+'件')}catch(err){alert('DBの読み込みに失敗しました。\n\n'+err.message)}e.target.value=''}
@@ -160,6 +166,6 @@ async function clearCache(){if(!confirm('キャッシュをクリアして再読
 
 async function init(){await openDB();updateDbName();refreshLocationList();refreshStoreList();await refreshList();await refreshSavedDbSelector()}
 init();
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=5').catch(console.log));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=6').catch(console.log));
 </script>
 </body></html>
