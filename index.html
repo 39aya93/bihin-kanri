@@ -2,1070 +2,164 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#1976d2">
 <link rel="manifest" href="manifest.json">
 <title>備品管理</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;background:#f3f4f6;color:#333}
-header{background:#1976d2;color:#fff;padding:14px 16px;position:sticky;top:0;z-index:10}
-header h1{margin:0;font-size:20px}
-main{max-width:700px;margin:auto;padding:12px}
-button{border:0;border-radius:8px;padding:11px 15px;font-size:15px;cursor:pointer}
-.primary{background:#1976d2;color:#fff}.secondary{background:#e5e7eb;color:#333}.danger{background:#d32f2f;color:#fff}.full{width:100%}
-.menu{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}
-.search-box{display:flex;gap:8px;margin-bottom:15px}.search-box input{flex:1}
-input,select,textarea{width:100%;padding:11px;font-size:16px;border:1px solid #ccc;border-radius:7px;background:#fff}
-textarea{min-height:90px;resize:vertical}
-.form-group{margin-bottom:14px}.form-group label{display:block;font-weight:bold;margin-bottom:5px}
-.card{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
-.item-card{display:flex;gap:12px;cursor:pointer}.item-image{width:90px;height:90px;object-fit:cover;border-radius:7px;background:#eee;flex-shrink:0}
-.item-info{flex:1;min-width:0}.item-name{font-weight:bold;font-size:17px;margin-bottom:6px}.item-location{color:#555;margin-bottom:4px}
-.expired{color:#d32f2f;font-weight:bold}.expiring{color:#ef6c00;font-weight:bold}
-.detail-image{width:100%;max-height:350px;object-fit:contain;background:#eee;border-radius:8px;margin-bottom:15px}
-.detail-row{padding:10px 0;border-bottom:1px solid #eee}.detail-label{font-size:13px;color:#777}.detail-value{font-size:16px;margin-top:3px;white-space:pre-wrap}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}
-.hidden{display:none!important}.preview{width:100%;max-height:250px;object-fit:contain;margin-top:8px;border-radius:8px;background:#eee}
-.empty{text-align:center;color:#777;padding:30px 10px}.small{font-size:13px;color:#777}
-hr{border:0;border-top:1px solid #ddd;margin:18px 0}
-.image-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}.image-buttons button{padding:13px 8px}
-.select-with-button{display:grid;grid-template-columns:1fr auto;gap:8px}.add-button{white-space:nowrap;background:#e5e7eb}
-.backup-button{margin-bottom:8px}
-.info-box{background:#eef5ff;border-radius:8px;padding:12px;margin-bottom:12px;font-size:14px}.setting-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin:7px 0}.setting-row button{padding:8px 12px}.setting-used{font-size:12px;color:#777}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;background:#f3f4f6;color:#333}header{background:#1976d2;color:#fff;padding:14px 16px;position:sticky;top:0;z-index:10}header h1{margin:0;font-size:20px}main{max-width:700px;margin:auto;padding:12px}button{border:0;border-radius:8px;padding:11px 15px;font-size:15px;cursor:pointer}.primary{background:#1976d2;color:#fff}.secondary{background:#e5e7eb;color:#333}.danger{background:#d32f2f;color:#fff}.full{width:100%}.menu{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.search-box{display:flex;gap:8px;margin-bottom:10px}.search-box input{flex:1}input,select,textarea{width:100%;padding:11px;font-size:16px;border:1px solid #ccc;border-radius:7px;background:#fff}textarea{min-height:90px}.form-group{margin-bottom:14px}.form-group label{display:block;font-weight:bold;margin-bottom:5px}.card{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.12)}.item-card{display:flex;gap:12px;cursor:pointer}.item-image{width:90px;height:90px;object-fit:cover;border-radius:7px;background:#eee;flex-shrink:0}.no-image{display:flex;align-items:center;justify-content:center;color:#999;font-size:12px}.item-info{flex:1;min-width:0}.item-name{font-weight:bold;font-size:17px;margin-bottom:5px}.item-location{color:#555;margin-bottom:3px}.expired{color:#d32f2f;font-weight:bold}.expiring{color:#ef6c00;font-weight:bold}.detail-image{width:100%;max-height:350px;object-fit:contain;background:#eee;border-radius:8px;margin-bottom:15px}.detail-row{padding:10px 0;border-bottom:1px solid #eee}.detail-label{font-size:13px;color:#777}.detail-value{font-size:16px;margin-top:3px;white-space:pre-wrap}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.hidden{display:none!important}.preview{width:100%;max-height:250px;object-fit:contain;margin-top:8px;border-radius:8px;background:#eee}.empty{text-align:center;color:#777;padding:30px 10px}.small{font-size:13px;color:#777}.info-box{background:#eef5ff;border-radius:8px;padding:12px;margin-bottom:12px;font-size:14px}hr{border:0;border-top:1px solid #ddd;margin:18px 0}.image-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}.select-with-button{display:grid;grid-template-columns:1fr auto;gap:8px}.setting-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #eee}.setting-used{font-size:12px;color:#777;margin-top:3px}.filter-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}.active-filter{outline:3px solid #90caf9}.db-status{font-weight:bold;font-size:14px;margin:0 0 10px}.db-box button{margin-bottom:8px}.bottom-db{margin-top:18px}.badge{font-size:12px;color:#555;margin-left:5px}
 </style>
 </head>
 <body>
-<header><h1>📦 備品管理</h1><div id="activeDbName" style="font-size:13px;margin-top:4px;opacity:.9"></div></header>
+<header><h1>📦 備品管理</h1></header>
 <main>
-
 <section id="homeScreen">
+  <div class="card db-box">
+    <div class="db-status" id="activeDbName">現在のDB：備品管理</div>
+    <div class="menu">
+      <button class="primary" onclick="newDatabase()">＋ 新しいDB</button>
+      <button class="secondary" onclick="openDbSelector()">📂 DBを選択</button>
+    </div>
+    <div id="savedDbSelector" class="hidden">
+      <div class="info-box">「現在のDBを保存」で保存したDBだけを選択できます。</div>
+      <select id="savedDbSelect"><option value="">保存済みDBを選択</option></select>
+      <br><br>
+      <button class="secondary full" onclick="loadSelectedSavedDb()">📂 選択したDBを開く</button>
+      <br><br>
+      <label class="secondary full" style="display:block;text-align:center;cursor:pointer">📥 外部DBファイルを読み込む
+        <input type="file" accept=".json,application/json" style="display:none" onchange="importDatabase(event)">
+      </label>
+    </div>
+    <button class="secondary full" onclick="showMaintenance()">⚙️ 候補リストを管理</button>
+  </div>
+
   <div class="menu">
     <button class="primary" onclick="showRegister()">＋ 備品を登録</button>
     <button class="secondary" onclick="showAllItems()">📋 一覧を見る</button>
   </div>
 
-  <div class="card" style="margin-bottom:15px">
-    <div style="font-weight:bold;margin-bottom:8px">🗂 データベース</div>
-    <div class="menu" style="margin-bottom:8px">
-      <button class="primary" onclick="newDatabase()">＋ 新しいDB</button>
-      <label class="secondary" style="text-align:center;cursor:pointer;padding:11px 15px;border-radius:8px;display:block">📂 DBを選択
-        <input type="file" accept=".json,application/json" style="display:none" onchange="importDatabase(event)">
-      </label>
-    </div>
-    <button class="secondary full backup-button" onclick="exportDatabase()">💾 現在のDBを保存</button>
-    <button class="secondary full" onclick="showMaintenance()">⚙️ 候補リストを管理</button>
-    <div class="small" style="margin-top:8px">DBはJSONファイルとして保存できます。園芸用品・工具・家電など、目的ごとに別ファイルで管理できます。</div>
-  </div>
-
   <div class="search-box">
-    <input id="searchInput" type="search" placeholder="名称・保管場所などで検索">
-    <button class="primary" onclick="searchItems()">🔎</button>
+    <input id="searchInput" type="search" placeholder="名称・仕様・場所・購入先・備考で検索">
+    <button class="primary" onclick="refreshList()">🔎</button>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
-    <button class="secondary" onclick="setImageFilter('all')">すべて</button>
-    <button class="secondary" onclick="setImageFilter('with')">🖼 画像あり</button>
-    <button class="secondary" onclick="setImageFilter('without')">🚫 画像なし</button>
+  <div class="filter-row">
+    <button id="filterAll" class="secondary active-filter" onclick="setImageFilter('all')">すべて</button>
+    <button id="filterWith" class="secondary" onclick="setImageFilter('with')">🖼 画像あり</button>
+    <button id="filterWithout" class="secondary" onclick="setImageFilter('without')">🚫 画像なし</button>
   </div>
-  <div id="searchInfo" class="small" style="margin-bottom:8px"></div>
-
+  <div id="searchInfo" class="small"></div>
   <div id="itemList"></div>
+
   <hr>
-
-  <button class="secondary full backup-button" onclick="openSettings()">⚙️ 購入先・保管場所をメンテナンス</button>
-  <button class="secondary full backup-button" onclick="clearCache()">🧹 キャッシュをクリアして再読み込み</button>
-  <button class="secondary full backup-button" onclick="exportBackup()">💾 バックアップを書き出す</button>
-
-  <label class="secondary full backup-button" style="display:block;text-align:center;cursor:pointer;">
+  <button class="secondary full" onclick="clearCache()">🧹 キャッシュをクリアして再読み込み</button>
+  <div class="bottom-db">
+    <button class="secondary full" onclick="exportBackup()">💾 バックアップを書き出す</button>
+  </div>
+  <label class="secondary full" style="display:block;text-align:center;cursor:pointer;margin-top:8px">
     🔄 バックアップを統合（マージ）
     <input type="file" accept=".json,application/json" style="display:none" onchange="mergeBackup(event)">
   </label>
-
-  <div class="small">
-    ※統合では、同じIDは更新され、IDがないデータは新規追加されます。
-  </div>
 </section>
 
-<section id="formScreen" class="hidden">
-  <div class="card">
-    <h2 id="formTitle">備品登録</h2>
+<section id="formScreen" class="hidden"><div class="card">
+<h2 id="formTitle">備品登録</h2>
+<div class="form-group"><label>名称</label><input id="name"></div>
+<div class="form-group"><label>仕様（サイズ）</label><input id="spec"></div>
+<div class="form-group"><label>個数</label><input id="quantity" type="number" min="0" step="1" inputmode="numeric"></div>
+<div class="form-group"><label>画像</label><div class="image-buttons"><button type="button" class="primary" onclick="takePhoto()">📷 カメラで撮影</button><button type="button" class="secondary" onclick="selectPhoto()">🖼 写真から選択</button></div><input id="cameraInput" type="file" accept="image/*" capture="environment" style="display:none"><input id="fileInput" type="file" accept="image/*" style="display:none"><img id="preview" class="preview hidden"></div>
+<div class="form-group"><label>保管場所</label><div class="select-with-button"><select id="location"></select><button type="button" class="secondary" onclick="addLocation()">＋追加</button></div></div>
+<div class="form-group"><label>入手時期</label><input id="obtained" type="date"></div>
+<div class="form-group"><label>保管期限</label><input id="expiry" type="date"></div>
+<div class="form-group"><label>購入先</label><div class="select-with-button"><select id="store"></select><button type="button" class="secondary" onclick="addStore()">＋追加</button></div></div>
+<div class="form-group"><label>価格</label><input id="price" type="number" inputmode="numeric"></div>
+<div class="form-group"><label>備考</label><textarea id="memo"></textarea></div>
+<button class="primary full" onclick="saveItem()">💾 保存する</button><br><br><button class="secondary full" onclick="showHome()">戻る</button>
+</div></section>
 
-    <div class="form-group">
-      <label>名称</label>
-      <input id="name" type="text">
-    </div>
+<section id="detailScreen" class="hidden"><div class="card"><div id="detailContent"></div><div class="actions"><button class="primary" onclick="editCurrentItem()">✏️ 編集</button><button class="danger" onclick="deleteCurrentItem()">🗑️ 削除</button></div><br><button class="secondary full" onclick="showHome()">戻る</button></div></section>
 
-    <div class="form-group">
-      <label>仕様（サイズ）</label>
-      <input id="spec" type="text">
-    </div>
-
-    <div class="form-group">
-      <label>個数</label>
-      <input id="quantity" type="number" min="0" step="1" inputmode="numeric">
-    </div>
-
-    <div class="form-group">
-      <label>画像</label>
-      <div class="image-buttons">
-        <button type="button" class="primary" onclick="takePhoto()">📷 カメラで撮影</button>
-        <button type="button" class="secondary" onclick="selectPhoto()">🖼 写真・ファイルから選択</button>
-      </div>
-
-      <input id="cameraInput" type="file" accept="image/*" capture="environment" style="display:none">
-      <input id="fileInput" type="file" accept="image/*" style="display:none">
-      <img id="preview" class="preview hidden">
-    </div>
-
-    <div class="form-group">
-      <label>保管場所</label>
-      <div class="select-with-button">
-        <select id="location"></select>
-        <button type="button" class="add-button" onclick="addLocation()">＋追加</button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>入手時期</label>
-      <input id="obtained" type="date">
-    </div>
-
-    <div class="form-group">
-      <label>保管期限</label>
-      <input id="expiry" type="date">
-    </div>
-
-    <div class="form-group">
-      <label>購入先</label>
-      <div class="select-with-button">
-        <select id="store"></select>
-        <button type="button" class="add-button" onclick="addStore()">＋追加</button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>価格</label>
-      <input id="price" type="number" inputmode="numeric">
-    </div>
-
-    <div class="form-group">
-      <label>備考</label>
-      <textarea id="memo"></textarea>
-    </div>
-
-    <button class="primary full" onclick="saveItem()">💾 保存する</button>
-    <br><br>
-    <button class="secondary full" onclick="showHome()">戻る</button>
-  </div>
-</section>
-
-<section id="settingsScreen" class="hidden">
-  <div class="card">
-    <h2>候補リストのメンテナンス</h2>
-    <div class="info-box">候補から削除しても、登録済み備品の「保管場所」「購入先」は変更しません。登録済みデータで使用中の候補を削除する場合は警告を表示します。</div>
-    <h3>保管場所</h3>
-    <div id="locationMaintenance"></div>
-    <button class="primary full" onclick="addLocationFromSettings()">＋ 保管場所を追加</button>
-    <hr>
-    <h3>購入先</h3>
-    <div id="storeMaintenance"></div>
-    <button class="primary full" onclick="addStoreFromSettings()">＋ 購入先を追加</button>
-    <br><br>
-    <button class="secondary full" onclick="showHome()">戻る</button>
-  </div>
-</section>
-
-<section id="detailScreen" class="hidden">
-  <div class="card">
-    <div id="detailContent"></div>
-    <div class="actions">
-      <button class="primary" onclick="editCurrentItem()">✏️ 編集</button>
-      <button class="danger" onclick="deleteCurrentItem()">🗑️ 削除</button>
-    </div>
-    <br>
-    <button class="secondary full" onclick="showHome()">戻る</button>
-  </div>
-</section>
-
-
-<section id="maintenanceScreen" class="hidden">
-  <div class="card">
-    <h2>⚙️ 候補リスト管理</h2>
-    <div class="info-box">ここで削除しても、すでに登録されている備品の「保管場所」「購入先」は変更されません。</div>
-    <h3>保管場所</h3>
-    <div id="locationCandidates"></div>
-    <button class="secondary full" onclick="addLocation()">＋ 保管場所を追加</button>
-    <hr>
-    <h3>購入先</h3>
-    <div id="storeCandidates"></div>
-    <button class="secondary full" onclick="addStore()">＋ 購入先を追加</button>
-    <br><br>
-    <button class="secondary full" onclick="showHome()">戻る</button>
-  </div>
-</section>
-
+<section id="maintenanceScreen" class="hidden"><div class="card">
+<h2>⚙️ 候補リストを管理</h2>
+<div class="info-box">ここで削除するのは「候補」だけです。登録済み備品の保管場所・購入先のデータは変更しません。</div>
+<h3>保管場所</h3><div id="locationMaintenance"></div><button class="primary full" onclick="addLocationFromSettings()">＋ 保管場所を追加</button>
+<hr><h3>購入先</h3><div id="storeMaintenance"></div><button class="primary full" onclick="addStoreFromSettings()">＋ 購入先を追加</button>
+<br><br><button class="secondary full" onclick="showHome()">戻る</button>
+</div></section>
 </main>
-
 <script>
-const DB_NAME="BihinKanriDB";
-const DB_VERSION=2;
-const STORE_NAME="items";
-const SETTINGS_KEY="BihinKanriSettings";
-const ACTIVE_DB_KEY="BihinKanriActiveDBName";
-const ACTIVE_DB_FORMAT_VERSION=3;
+const DB_NAME='BihinKanriDB',DB_VERSION=4,STORE_NAME='items',CATALOG_STORE='dbCatalog';
+const LEGACY_SETTINGS='BihinKanriSettings',ACTIVE_DB_KEY='BihinKanriActiveDBName';
+const DEFAULT_LOCATIONS=['工具棚A','工具棚B','ガレージ','物置','パントリー','倉庫','車庫'];
+const DEFAULT_STORES=['カインズ','コーナン','Amazon','楽天市場','モノタロウ','その他'];
+let db,currentItemId=null,editingId=null,selectedImageData=null,imageFilter='all';
+let activeDbName=localStorage.getItem(ACTIVE_DB_KEY)||'備品管理';
 
-let db;
-let currentItemId=null;
-let editingId=null;
-let selectedImageData=null;
-let imageFilter="all";
-let activeDbName=localStorage.getItem(ACTIVE_DB_KEY)||"備品管理";
-
-const DEFAULT_LOCATIONS=["工具棚A","工具棚B","ガレージ","物置","パントリー","倉庫","車庫"];
-const DEFAULT_STORES=["カインズ","コーナン","Amazon","楽天市場","モノタロウ","その他"];
-
+const $=id=>document.getElementById(id);
+function createId(){return 'I'+Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function hideAllScreens(){['homeScreen','formScreen','detailScreen','maintenanceScreen'].forEach(id=>$(id).classList.add('hidden'))}
+function showHome(){hideAllScreens();$('homeScreen').classList.remove('hidden');updateDbName();refreshList()}
+function updateDbName(){ $('activeDbName').textContent='現在のDB：'+activeDbName; localStorage.setItem(ACTIVE_DB_KEY,activeDbName) }
 function getSettings(){
-  const saved=localStorage.getItem(SETTINGS_KEY);
-  if(!saved)return{locations:[...DEFAULT_LOCATIONS],stores:[...DEFAULT_STORES]};
-  try{
-    const data=JSON.parse(saved);
-    return{
-      locations:Array.isArray(data.locations)?data.locations:[...DEFAULT_LOCATIONS],
-      stores:Array.isArray(data.stores)?data.stores:[...DEFAULT_STORES]
-    };
-  }catch(e){
-    return{locations:[...DEFAULT_LOCATIONS],stores:[...DEFAULT_STORES]};
-  }
+ const s=localStorage.getItem(LEGACY_SETTINGS); if(!s)return {locations:[...DEFAULT_LOCATIONS],stores:[...DEFAULT_STORES]};
+ try{const d=JSON.parse(s);return {locations:Array.isArray(d.locations)?d.locations:[...DEFAULT_LOCATIONS],stores:Array.isArray(d.stores)?d.stores:[...DEFAULT_STORES]}}catch(e){return {locations:[...DEFAULT_LOCATIONS],stores:[...DEFAULT_STORES]}}
 }
-
-function saveSettings(settings){
-  localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));
-}
-
-function updateDbName(){
-  document.getElementById("activeDbName").textContent="現在のDB："+activeDbName;
-  localStorage.setItem(ACTIVE_DB_KEY,activeDbName);
-}
-
-function refreshLocationList(selectedValue=""){
-  const select=document.getElementById("location");
-  const settings=getSettings();
-  select.innerHTML="";
-  const blank=document.createElement("option");
-  blank.value="";blank.textContent="選択してください";
-  select.appendChild(blank);
-
-  settings.locations.forEach(value=>{
-    const option=document.createElement("option");
-    option.value=value;option.textContent=value;
-    select.appendChild(option);
-  });
-
-  if(selectedValue){
-    if(!settings.locations.includes(selectedValue)){
-      const option=document.createElement("option");
-      option.value=selectedValue;option.textContent=selectedValue;
-      select.appendChild(option);
-    }
-    select.value=selectedValue;
-  }
-}
-
-function refreshStoreList(selectedValue=""){
-  const select=document.getElementById("store");
-  const settings=getSettings();
-  select.innerHTML="";
-  const blank=document.createElement("option");
-  blank.value="";blank.textContent="選択してください";
-  select.appendChild(blank);
-
-  settings.stores.forEach(value=>{
-    const option=document.createElement("option");
-    option.value=value;option.textContent=value;
-    select.appendChild(option);
-  });
-
-  if(selectedValue){
-    if(!settings.stores.includes(selectedValue)){
-      const option=document.createElement("option");
-      option.value=selectedValue;option.textContent=selectedValue;
-      select.appendChild(option);
-    }
-    select.value=selectedValue;
-  }
-}
-
-function addLocation(){
-  const value=prompt("追加する保管場所を入力してください。");
-  if(value===null)return;
-  const name=value.trim();
-  if(!name)return;
-  const settings=getSettings();
-  if(!settings.locations.includes(name)){
-    settings.locations.push(name);
-    saveSettings(settings);
-  }
-  refreshLocationList(name);
-}
-
-function addStore(){
-  const value=prompt("追加する購入先を入力してください。");
-  if(value===null)return;
-  const name=value.trim();
-  if(!name)return;
-  const settings=getSettings();
-  if(!settings.stores.includes(name)){
-    settings.stores.push(name);
-    saveSettings(settings);
-  }
-  refreshStoreList(name);
-}
-
-function openDB(){
-  return new Promise((resolve,reject)=>{
-    const request=indexedDB.open(DB_NAME,DB_VERSION);
-    request.onupgradeneeded=e=>{
-      const database=e.target.result;
-      if(!database.objectStoreNames.contains(STORE_NAME)){
-        const store=database.createObjectStore(STORE_NAME,{keyPath:"id"});
-        store.createIndex("name","name",{unique:false});
-      }
-    };
-    request.onsuccess=e=>{db=e.target.result;resolve(db)};
-    request.onerror=()=>reject(request.error);
-  });
-}
-
-function saveToDB(item){
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(STORE_NAME,"readwrite");
-    tx.objectStore(STORE_NAME).put(item);
-    tx.oncomplete=()=>resolve();
-    tx.onerror=()=>reject(tx.error);
-  });
-}
-
-function getAllItems(){
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(STORE_NAME,"readonly");
-    const request=tx.objectStore(STORE_NAME).getAll();
-    request.onsuccess=()=>resolve(request.result);
-    request.onerror=()=>reject(request.error);
-  });
-}
-
-function getItem(id){
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(STORE_NAME,"readonly");
-    const request=tx.objectStore(STORE_NAME).get(id);
-    request.onsuccess=()=>resolve(request.result);
-    request.onerror=()=>reject(request.error);
-  });
-}
-
-function deleteFromDB(id){
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(STORE_NAME,"readwrite");
-    tx.objectStore(STORE_NAME).delete(id);
-    tx.oncomplete=()=>resolve();
-    tx.onerror=()=>reject(tx.error);
-  });
-}
-
-function createId(){
-  return "I"+Date.now().toString(36)+Math.random().toString(36).substring(2,8);
-}
-
-function hideAllScreens(){
-  ["homeScreen","formScreen","detailScreen"].forEach(id=>{
-    document.getElementById(id).classList.add("hidden");
-  });
-}
-
-function showHome(){
-  hideAllScreens();
-  document.getElementById("homeScreen").classList.remove("hidden");
-  showAllItems();
-}
-
-function showRegister(){
-  hideAllScreens();
-  editingId=null;
-  selectedImageData=null;
-  document.getElementById("formScreen").classList.remove("hidden");
-  document.getElementById("formTitle").textContent="備品登録";
-  clearForm();
-  refreshLocationList();
-  refreshStoreList();
-}
-
-function clearForm(){
-  document.getElementById("name").value="";
-  document.getElementById("spec").value="";
-  document.getElementById("cameraInput").value="";
-  document.getElementById("fileInput").value="";
-  document.getElementById("obtained").value="";
-  document.getElementById("expiry").value="";
-  document.getElementById("price").value="";
-  document.getElementById("memo").value="";
-  selectedImageData=null;
-  const preview=document.getElementById("preview");
-  preview.src="";
-  preview.classList.add("hidden");
-}
-
-function takePhoto(){
-  document.getElementById("cameraInput").click();
-}
-
-function selectPhoto(){
-  document.getElementById("fileInput").click();
-}
-
-function handleImageChange(e){
-  const file=e.target.files[0];
-  if(!file)return;
-  if(!file.type.startsWith("image/")){
-    alert("画像ファイルを選択してください。");
-    return;
-  }
-  const reader=new FileReader();
-  reader.onload=event=>{
-    selectedImageData=event.target.result;
-    const preview=document.getElementById("preview");
-    preview.src=selectedImageData;
-    preview.classList.remove("hidden");
-  };
-  reader.readAsDataURL(file);
-}
-
-document.getElementById("cameraInput").addEventListener("change",handleImageChange);
-document.getElementById("fileInput").addEventListener("change",handleImageChange);
-
-async function saveItem(){
-  const name=document.getElementById("name").value.trim();
-  if(!name){
-    alert("名称を入力してください。");
-    return;
-  }
-
-  const now=new Date().toISOString();
-  const location=document.getElementById("location").value;
-  const store=document.getElementById("store").value;
-  const quantity=document.getElementById("quantity").value===""?"":Math.max(0,parseInt(document.getElementById("quantity").value,10)||0);
-
-  const settings=getSettings();
-
-  if(location&&!settings.locations.includes(location)){
-    settings.locations.push(location);
-  }
-  if(store&&!settings.stores.includes(store)){
-    settings.stores.push(store);
-  }
-  saveSettings(settings);
-
-  let item;
-
-  if(editingId){
-    const oldItem=await getItem(editingId);
-    if(!oldItem){
-      alert("編集対象が見つかりません。");
-      return;
-    }
-
-    item={
-      ...oldItem,
-      name:name,
-      spec:document.getElementById("spec").value.trim(),
-      quantity:quantity,
-      location:location,
-      obtained:document.getElementById("obtained").value,
-      expiry:document.getElementById("expiry").value,
-      store:store,
-      price:document.getElementById("price").value,
-      memo:document.getElementById("memo").value.trim(),
-      updatedAt:now
-    };
-
-    if(selectedImageData)item.image=selectedImageData;
-
-  }else{
-    item={
-      id:createId(),
-      name:name,
-      spec:document.getElementById("spec").value.trim(),
-      image:selectedImageData||"",
-      location:location,
-      obtained:document.getElementById("obtained").value,
-      expiry:document.getElementById("expiry").value,
-      store:store,
-      price:document.getElementById("price").value,
-      memo:document.getElementById("memo").value.trim(),
-      createdAt:now,
-      updatedAt:now
-    };
-  }
-
-  await saveToDB(item);
-  alert(editingId?"変更を保存しました。":"登録しました。");
-  showDetail(item.id);
-}
-
-async function editItem(id){
-  const item=await getItem(id);
-  if(!item)return;
-
-  editingId=id;
-  selectedImageData=null;
-  hideAllScreens();
-  document.getElementById("formScreen").classList.remove("hidden");
-  document.getElementById("formTitle").textContent="備品を編集";
-
-  document.getElementById("name").value=item.name||"";
-  document.getElementById("spec").value=item.spec||"";
-  document.getElementById("quantity").value=item.quantity ?? "";
-  document.getElementById("obtained").value=item.obtained||"";
-  document.getElementById("expiry").value=item.expiry||"";
-  document.getElementById("price").value=item.price||"";
-  document.getElementById("memo").value=item.memo||"";
-  document.getElementById("cameraInput").value="";
-  document.getElementById("fileInput").value="";
-
-  refreshLocationList(item.location||"");
-  refreshStoreList(item.store||"");
-
-  const preview=document.getElementById("preview");
-  if(item.image){
-    preview.src=item.image;
-    preview.classList.remove("hidden");
-  }else{
-    preview.src="";
-    preview.classList.add("hidden");
-  }
-}
-
-function editCurrentItem(){
-  if(currentItemId)editItem(currentItemId);
-}
-
-async function showAllItems(){
-  const items=await getAllItems();
-  displayItems(items);
-}
-
-function displayItems(items){
-  const list=document.getElementById("itemList");
-  list.innerHTML="";
-
-  let filtered=items.filter(item=>{
-    if(imageFilter==="with")return !!item.image;
-    if(imageFilter==="without")return !item.image;
-    return true;
-  });
-
-  const info=document.getElementById("searchInfo");
-  if(info)info.textContent=filtered.length+"件"+(imageFilter==="with"?"（画像あり）":imageFilter==="without"?"（画像なし）":"");
-
-  if(!filtered.length){
-    list.innerHTML='<div class="empty">該当する備品はありません。</div>';
-    return;
-  }
-
-  filtered.sort((a,b)=>(a.name||"").localeCompare(b.name||"","ja"));
-
-  filtered.forEach(item=>{
-    const card=document.createElement("div");
-    card.className="card item-card";
-    card.onclick=()=>showDetail(item.id);
-
-    if(item.image){
-      const image=document.createElement("img");
-      image.className="item-image";
-      image.src=item.image;
-      image.alt=item.name||"";
-      card.appendChild(image);
-    }else{
-      const noImage=document.createElement("div");
-      noImage.className="item-image";
-      noImage.style.display="flex";noImage.style.alignItems="center";noImage.style.justifyContent="center";noImage.style.fontSize="28px";
-      noImage.textContent="📦";
-      card.appendChild(noImage);
-    }
-
-    const infoEl=document.createElement("div");
-    infoEl.className="item-info";
-    const name=document.createElement("div");
-    name.className="item-name";name.textContent=item.name||"名称なし";
-    const location=document.createElement("div");
-    location.className="item-location";location.textContent="📍 "+(item.location||"未設定");
-    const quantity=document.createElement("div");
-    quantity.textContent="個数： "+(item.quantity!==undefined&&item.quantity!==""?Number(item.quantity).toLocaleString()+"個":"未設定");
-    const expiry=document.createElement("div");
-    expiry.textContent="期限： "+(item.expiry||"なし");
-    setExpiryClass(expiry,item.expiry);
-    infoEl.appendChild(name);infoEl.appendChild(location);infoEl.appendChild(quantity);infoEl.appendChild(expiry);
-    card.appendChild(infoEl);list.appendChild(card);
-  });
-}
-
-function setImageFilter(filter){
-  imageFilter=filter;
-  searchItems();
-}
-
-async function searchItems(){
-  const keyword=normalizeJapanese(document.getElementById("searchInput").value.trim());
-  const items=await getAllItems();
-  const result=!keyword?items:items.filter(item=>{
-    const text=[item.name,item.spec,item.location,item.store,item.memo,item.quantity]
-      .map(normalizeJapanese).join(" ");
-    return text.includes(keyword);
-  });
-  displayItems(result);
-}
-
-function normalizeJapanese(text){
-  return String(text??"").normalize("NFKC")
-    .replace(/[\u30a1-\u30f6]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0x60))
-    .toLowerCase();
-}
-
-async function showDetail(id){
-  const item=await getItem(id);
-  if(!item)return;
-
-  currentItemId=id;
-  hideAllScreens();
-  document.getElementById("detailScreen").classList.remove("hidden");
-
-  const container=document.getElementById("detailContent");
-  container.innerHTML="";
-
-  if(item.image){
-    const image=document.createElement("img");
-    image.className="detail-image";
-    image.src=item.image;
-    image.alt=item.name||"";
-    container.appendChild(image);
-  }
-
-  addDetail(container,"名称",item.name);
-  addDetail(container,"仕様（サイズ）",item.spec);
-  addDetail(container,"個数",item.quantity!==undefined && item.quantity!=="" ? Number(item.quantity).toLocaleString()+" 個" : "");
-  addDetail(container,"保管場所",item.location);
-  addDetail(container,"入手時期",item.obtained);
-
-  const expiryRow=addDetail(container,"保管期限",item.expiry);
-  if(item.expiry){
-    setExpiryClass(expiryRow.querySelector(".detail-value"),item.expiry);
-  }
-
-  addDetail(container,"購入先",item.store);
-  addDetail(container,"価格",item.price?Number(item.price).toLocaleString()+" 円":"");
-  addDetail(container,"備考",item.memo);
-}
-
-function addDetail(container,label,value){
-  const row=document.createElement("div");
-  row.className="detail-row";
-
-  const labelEl=document.createElement("div");
-  labelEl.className="detail-label";
-  labelEl.textContent=label;
-
-  const valueEl=document.createElement("div");
-  valueEl.className="detail-value";
-  valueEl.textContent=value||"－";
-
-  row.appendChild(labelEl);
-  row.appendChild(valueEl);
-  container.appendChild(row);
-  return row;
-}
-
-function setExpiryClass(element,expiry){
-  element.classList.remove("expired","expiring");
-  if(!expiry)return;
-
-  const today=new Date();
-  today.setHours(0,0,0,0);
-
-  const limit=new Date(expiry);
-  limit.setHours(0,0,0,0);
-
-  const diff=Math.floor((limit-today)/86400000);
-
-  if(diff<0)element.classList.add("expired");
-  else if(diff<=30)element.classList.add("expiring");
-}
-
-async function deleteCurrentItem(){
-  if(!currentItemId)return;
-
-  const item=await getItem(currentItemId);
-  if(!item)return;
-
-  if(!confirm("「"+item.name+"」を削除しますか？"))return;
-
-  await deleteFromDB(currentItemId);
-  currentItemId=null;
-  alert("削除しました。");
-  showHome();
-}
-
-/* =========================
-   候補リスト メンテナンス
-========================= */
-function openSettings(){
-  hideAllScreens();
-  document.getElementById("settingsScreen").classList.remove("hidden");
-  renderSettings();
-}
-
-async function renderSettings(){
-  const settings=getSettings();
-  const items=await getAllItems();
-  renderSettingList("locationMaintenance",settings.locations,"locations",items);
-  renderSettingList("storeMaintenance",settings.stores,"stores",items);
-}
-
-function renderSettingList(containerId,list,key,items){
-  const container=document.getElementById(containerId);
-  container.innerHTML="";
-  list.forEach((value,index)=>{
-    const used=items.filter(item=>String(item[key==="locations"?"location":"store"]||"")===String(value)).length;
-    const row=document.createElement("div");
-    row.className="setting-row";
-    const label=document.createElement("div");
-    label.innerHTML="<b>"+escapeHtml(value)+"</b>"+(used?'<div class="setting-used">登録済み '+used+'件で使用中</div>':"");
-    const btn=document.createElement("button");
-    btn.className="danger";
-    btn.textContent="削除";
-    btn.onclick=()=>removeSetting(key,index,value,used);
-    row.appendChild(label);row.appendChild(btn);container.appendChild(row);
-  });
-}
-
-function escapeHtml(value){
-  return String(value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
-}
-
-async function removeSetting(key,index,value,used){
-  const label=key==="locations"?"保管場所":"購入先";
-  if(used>0){
-    const answer=confirm("WARNING\n\n「"+value+"」は現在、登録済み備品「"+used+"件」で使用されています。\n\n候補リストから削除しますか？\n\n※削除しても登録済み備品のデータは変更されません。\n\n[OK] 削除する\n[キャンセル] 削除しない");
-    if(!answer)return;
-    const restore=confirm("確認\n\n「"+value+"」は登録済みデータで使用中です。\n候補リストから削除したままにしますか？\n\n[OK] 削除したまま\n[キャンセル] 候補に戻す");
-    if(!restore)return;
-  }else{
-    if(!confirm("「"+value+"」を候補リストから削除しますか？"))return;
-  }
-  const settings=getSettings();
-  settings[key].splice(index,1);
-  saveSettings(settings);
-  await renderSettings();
-  alert(label+"の候補を削除しました。\n登録済みデータは変更していません。");
-}
-
-function addLocationFromSettings(){
-  const value=prompt("追加する保管場所を入力してください。");
-  if(value===null)return;
-  const name=value.trim();if(!name)return;
-  const settings=getSettings();
-  if(settings.locations.includes(name)){alert("すでに登録されています。");return;}
-  settings.locations.push(name);saveSettings(settings);renderSettings();
-}
-
-function addStoreFromSettings(){
-  const value=prompt("追加する購入先を入力してください。");
-  if(value===null)return;
-  const name=value.trim();if(!name)return;
-  const settings=getSettings();
-  if(settings.stores.includes(name)){alert("すでに登録されています。");return;}
-  settings.stores.push(name);saveSettings(settings);renderSettings();
-}
-
-/* =========================
-   キャッシュクリア
-========================= */
-async function clearCache(){
-  if(!confirm("キャッシュをクリアしてアプリを再読み込みします。\n\n備品データや候補リストは削除されません。\n実行しますか？"))return;
-  try{
-    if("caches" in window){
-      const keys=await caches.keys();
-      await Promise.all(keys.map(key=>caches.delete(key)));
-    }
-    if("serviceWorker" in navigator){
-      const registrations=await navigator.serviceWorker.getRegistrations();
-      await Promise.all(registrations.map(r=>r.update()));
-    }
-  }catch(e){console.log(e);}
-  location.reload();
-}
-
-/* =========================
-   バックアップ
-========================= */
-
-async function exportDatabase(){
-  const items=await getAllItems();
-  const settings=getSettings();
-  const data={
-    formatVersion:ACTIVE_DB_FORMAT_VERSION,
-    dbName:activeDbName,
-    exportedAt:new Date().toISOString(),
-    settings:{locations:settings.locations,stores:settings.stores},
-    items:items
-  };
-  downloadJson(data,activeDbName+"_DB_"+new Date().toISOString().slice(0,10)+".json");
-}
-
-async function exportBackup(){
-  await exportDatabase();
-}
-
-function downloadJson(data,filename){
-  const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");a.href=url;a.download=filename;
-  document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
-
-async function importDatabase(event){
-  const file=event.target.files[0];
-  if(!file)return;
-  try{
-    const text=await file.text();
-    const data=JSON.parse(text);
-    if(!Array.isArray(data.items))throw new Error("DBファイルの形式が不正です。");
-    if(!confirm("現在のDBを「"+((data.dbName||file.name).replace(/\.json$/i,""))+"」に切り替えますか？\n\n現在のDBを保存していない場合は、先に「現在のDBを保存」してください。"))return;
-    await clearDB();
-    for(const raw of data.items){
-      if(!raw||typeof raw!=="object")continue;
-      const item={...raw,id:raw.id?String(raw.id):createId()};
-      const now=new Date().toISOString();
-      if(!item.createdAt)item.createdAt=now;if(!item.updatedAt)item.updatedAt=now;
-      await saveToDB(item);
-    }
-    if(data.settings&&typeof data.settings==="object"){
-      saveSettings({
-        locations:Array.isArray(data.settings.locations)?data.settings.locations:[...DEFAULT_LOCATIONS],
-        stores:Array.isArray(data.settings.stores)?data.settings.stores:[...DEFAULT_STORES]
-      });
-    }else{
-      saveSettings({locations:[...DEFAULT_LOCATIONS],stores:[...DEFAULT_STORES]});
-    }
-    activeDbName=(data.dbName||file.name.replace(/\.json$/i,""))||"備品管理";
-    updateDbName();
-    refreshLocationList();refreshStoreList();
-    alert("DBを読み込みました。\n\n"+activeDbName+"\n"+data.items.length+"件");
-    showAllItems();
-  }catch(e){alert("DBの読み込みに失敗しました。\n\n"+e.message);}
-  event.target.value="";
-}
-
-async function clearDB(){
-  const items=await getAllItems();
-  for(const item of items)await deleteFromDB(item.id);
-}
-
-async function newDatabase(){
-  const name=prompt("新しいDB名を入力してください。\n例：園芸用品、工具、家電など","");
-  if(name===null)return;
-  const newName=name.trim();
-  if(!newName){alert("DB名を入力してください。");return;}
-  if(!confirm("新しいDB「"+newName+"」を作成します。\n\n現在のDBを保存していない場合は、先に保存してください。\n\n現在の登録データは新しいDBには引き継ぎません。"))return;
-  await clearDB();
-  activeDbName=newName;updateDbName();
-  saveSettings({locations:[...DEFAULT_LOCATIONS],stores:[...DEFAULT_STORES]});
-  imageFilter="all";document.getElementById("searchInput").value="";
-  refreshLocationList();refreshStoreList();
-  await showAllItems();
-  alert("新しいDBを作成しました。\n\n「現在のDBを保存」でファイルとして保存できます。");
-}
-
-/* =========================
-   バックアップ統合（マージ）
-
-   ・同じID → 更新
-   ・IDなし → 新規IDを発行して追加
-   ・現在側にしかないデータ → そのまま
-   ・候補リストも統合
-========================= */
-
-async function mergeBackup(event){
-  const file=event.target.files[0];
-  if(!file)return;
-
-  try{
-    const text=await file.text();
-    const data=JSON.parse(text);
-
-    if(!data.items||!Array.isArray(data.items)){
-      throw new Error("バックアップ形式が不正です。");
-    }
-
-    const currentItems=await getAllItems();
-    const currentMap=new Map();
-
-    currentItems.forEach(item=>{
-      if(item.id)currentMap.set(String(item.id),item);
-    });
-
-    let added=0;
-    let updated=0;
-    let noId=0;
-
-    for(const incomingRaw of data.items){
-      if(!incomingRaw||typeof incomingRaw!=="object")continue;
-
-      let item={...incomingRaw};
-      let id=item.id?String(item.id).trim():"";
-
-      /* IDがない場合は新しいIDを発行 */
-      if(!id){
-        id=createId();
-        noId++;
-      }
-
-      item.id=id;
-
-      if(currentMap.has(id)){
-        const existing=currentMap.get(id);
-
-        /* 古いバックアップで画像項目がない場合は現在の画像を保持 */
-        if(!Object.prototype.hasOwnProperty.call(item,"image")){
-          item.image=existing.image||"";
-        }
-
-        /* 古いバックアップで作成日時がない場合 */
-        if(!item.createdAt){
-          item.createdAt=existing.createdAt||new Date().toISOString();
-        }
-
-        item.updatedAt=new Date().toISOString();
-
-        await saveToDB(item);
-        currentMap.set(id,item);
-        updated++;
-
-      }else{
-        const now=new Date().toISOString();
-
-        if(!item.createdAt)item.createdAt=now;
-        if(!item.updatedAt)item.updatedAt=now;
-
-        await saveToDB(item);
-        currentMap.set(id,item);
-        added++;
-      }
-    }
-
-    /* 候補リストも統合 */
-    const settings=getSettings();
-    let addedLocations=0;
-    let addedStores=0;
-
-    if(data.settings&&typeof data.settings==="object"){
-
-      if(Array.isArray(data.settings.locations)){
-        data.settings.locations.forEach(value=>{
-          if(value&&!settings.locations.includes(value)){
-            settings.locations.push(value);
-            addedLocations++;
-          }
-        });
-      }
-
-      if(Array.isArray(data.settings.stores)){
-        data.settings.stores.forEach(value=>{
-          if(value&&!settings.stores.includes(value)){
-            settings.stores.push(value);
-            addedStores++;
-          }
-        });
-      }
-
-      saveSettings(settings);
-    }
-
-    alert(
-      "バックアップを統合しました。\n\n"+
-      "新規追加："+added+"件\n"+
-      "更新："+updated+"件\n"+
-      "IDなしから追加："+noId+"件\n\n"+
-      "保管場所候補追加："+addedLocations+"件\n"+
-      "購入先候補追加："+addedStores+"件"
-    );
-
-    showAllItems();
-
-  }catch(e){
-    alert("バックアップの統合に失敗しました。\n\n"+e.message);
-  }
-
-  event.target.value="";
-}
-
-function showMaintenance(){
-  hideAllScreens();
-  document.getElementById("maintenanceScreen").classList.remove("hidden");
-  renderCandidates();
-}
-
-async function renderCandidates(){
-  const settings=getSettings();
-  const items=await getAllItems();
-  const locCounts={},storeCounts={};
-  items.forEach(item=>{if(item.location)locCounts[item.location]=(locCounts[item.location]||0)+1;if(item.store)storeCounts[item.store]=(storeCounts[item.store]||0)+1;});
-  const loc=document.getElementById("locationCandidates");loc.innerHTML="";
-  settings.locations.forEach((value,i)=>{
-    const row=document.createElement("div");row.className="card";row.style.display="flex";row.style.justifyContent="space-between";row.style.alignItems="center";
-    row.innerHTML="<div>"+escapeHtml(value)+"<div class='small'>登録済み"+(locCounts[value]||0)+"件で使用中</div></div>";
-    const b=document.createElement("button");b.className="danger";b.textContent="削除";b.onclick=()=>deleteCandidate("location",i,value,locCounts[value]||0);row.appendChild(b);loc.appendChild(row);
-  });
-  const st=document.getElementById("storeCandidates");st.innerHTML="";
-  settings.stores.forEach((value,i)=>{
-    const row=document.createElement("div");row.className="card";row.style.display="flex";row.style.justifyContent="space-between";row.style.alignItems="center";
-    row.innerHTML="<div>"+escapeHtml(value)+"<div class='small'>登録済み"+(storeCounts[value]||0)+"件で使用中</div></div>";
-    const b=document.createElement("button");b.className="danger";b.textContent="削除";b.onclick=()=>deleteCandidate("store",i,value,storeCounts[value]||0);row.appendChild(b);st.appendChild(row);
-  });
-}
-
-function escapeHtml(text){const d=document.createElement("div");d.textContent=text;return d.innerHTML;}
-
-function deleteCandidate(type,index,value,count){
-  const label=type==="location"?"保管場所":"購入先";
-  const usage=count?"\n\n現在、"+count+"件の登録データで使用されています。削除しても登録済みデータは変更されません。":"";
-  if(!confirm("「"+value+"」を候補リストから削除しますか？"+usage+"\n\n次の確認でOKを押すと削除、キャンセルすると復元します。"))return;
-  if(!confirm("本当に「"+value+"」を候補リストから削除しますか？\n\n※登録済み備品の値はそのまま残ります。"))return;
-  const settings=getSettings();
-  const arr=type==="location"?settings.locations:settings.stores;
-  if(arr[index]===value)arr.splice(index,1);else{const i=arr.indexOf(value);if(i>=0)arr.splice(i,1);}
-  saveSettings(settings);renderCandidates();refreshLocationList();refreshStoreList();
-}
-
-/* =========================
-   初期化
-========================= */
-
-async function init(){
-  await openDB();
-  updateDbName();
-  refreshLocationList();
-  refreshStoreList();
-  await showAllItems();
-}
-
+function saveSettings(s){localStorage.setItem(LEGACY_SETTINGS,JSON.stringify(s))}
+function setSettings(s){saveSettings({locations:[...(s.locations||[])],stores:[...(s.stores||[])]})}
+function openDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB_NAME,DB_VERSION);r.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains(STORE_NAME)){const st=d.createObjectStore(STORE_NAME,{keyPath:'id'});st.createIndex('name','name',{unique:false})}if(!d.objectStoreNames.contains(CATALOG_STORE))d.createObjectStore(CATALOG_STORE,{keyPath:'name'})};r.onsuccess=e=>{db=e.target.result;resolve(db)};r.onerror=()=>reject(r.error)})}
+function getAllItems(){return new Promise((res,rej)=>{const r=db.transaction(STORE_NAME,'readonly').objectStore(STORE_NAME).getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error)})}
+function getItem(id){return new Promise((res,rej)=>{const r=db.transaction(STORE_NAME,'readonly').objectStore(STORE_NAME).get(id);r.onsuccess=()=>res(r.result||null);r.onerror=()=>rej(r.error)})}
+function saveToDB(item){return new Promise((res,rej)=>{const tx=db.transaction(STORE_NAME,'readwrite');tx.objectStore(STORE_NAME).put(item);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}
+function deleteFromDB(id){return new Promise((res,rej)=>{const tx=db.transaction(STORE_NAME,'readwrite');tx.objectStore(STORE_NAME).delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}
+function clearDB(){return new Promise((res,rej)=>{const tx=db.transaction(STORE_NAME,'readwrite');tx.objectStore(STORE_NAME).clear();tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}
+function saveCatalog(data){return new Promise((res,rej)=>{const tx=db.transaction(CATALOG_STORE,'readwrite');tx.objectStore(CATALOG_STORE).put(data);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}
+function getCatalogs(){return new Promise((res,rej)=>{const r=db.transaction(CATALOG_STORE,'readonly').objectStore(CATALOG_STORE).getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error)})}
+function getCatalog(name){return new Promise((res,rej)=>{const r=db.transaction(CATALOG_STORE,'readonly').objectStore(CATALOG_STORE).get(name);r.onsuccess=()=>res(r.result||null);r.onerror=()=>rej(r.error)})}
+
+function refreshLocationList(selected=''){const s=$('location'),set=getSettings();s.innerHTML='<option value="">選択してください</option>';set.locations.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o)});if(selected){if(!set.locations.includes(selected)){const o=document.createElement('option');o.value=selected;o.textContent=selected;s.appendChild(o)}s.value=selected}}
+function refreshStoreList(selected=''){const s=$('store'),set=getSettings();s.innerHTML='<option value="">選択してください</option>';set.stores.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o)});if(selected){if(!set.stores.includes(selected)){const o=document.createElement('option');o.value=selected;o.textContent=selected;s.appendChild(o)}s.value=selected}}
+function addLocation(){const v=prompt('追加する保管場所を入力してください。');if(v===null)return;const n=v.trim();if(!n)return;const s=getSettings();if(!s.locations.includes(n))s.locations.push(n);saveSettings(s);refreshLocationList(n)}
+function addStore(){const v=prompt('追加する購入先を入力してください。');if(v===null)return;const n=v.trim();if(!n)return;const s=getSettings();if(!s.stores.includes(n))s.stores.push(n);saveSettings(s);refreshStoreList(n)}
+
+function normalizeJapanese(text){return String(text??'').normalize('NFKC').replace(/[ァ-ヶ]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0x60)).toLowerCase()}
+function setImageFilter(v){imageFilter=v;['filterAll','filterWith','filterWithout'].forEach(id=>$(id).classList.remove('active-filter'));$('filter'+(v==='all'?'All':v==='with'?'With':'Without')).classList.add('active-filter');refreshList()}
+async function refreshList(){const items=await getAllItems();const key=normalizeJapanese($('searchInput').value.trim());let r=items.filter(item=>{if(imageFilter==='with'&&!item.image)return false;if(imageFilter==='without'&&item.image)return false;if(!key)return true;return [item.name,item.spec,item.location,item.store,item.memo].some(x=>normalizeJapanese(x).includes(key))});displayItems(r);$('searchInfo').textContent='表示：'+r.length+'件 / 登録：'+items.length+'件'+(key?'　検索語：「'+$('searchInput').value.trim()+'」':'')}
+function displayItems(items){const list=$('itemList');list.innerHTML='';if(!items.length){list.innerHTML='<div class="empty">該当する備品はありません。</div>';return}items.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ja'));items.forEach(item=>{const card=document.createElement('div');card.className='card item-card';card.onclick=()=>showDetail(item.id);if(item.image){const im=document.createElement('img');im.className='item-image';im.src=item.image;im.alt=item.name||'';card.appendChild(im)}else{const no=document.createElement('div');no.className='item-image no-image';no.textContent='画像なし';card.appendChild(no)}const info=document.createElement('div');info.className='item-info';const n=document.createElement('div');n.className='item-name';n.textContent=(item.name||'名称なし')+(item.quantity!==undefined&&item.quantity!==''?'　×'+item.quantity:'');const l=document.createElement('div');l.className='item-location';l.textContent='📍 '+(item.location||'未設定');const e=document.createElement('div');e.textContent='期限：'+(item.expiry||'なし');setExpiryClass(e,item.expiry);info.append(n,l,e);card.appendChild(info);list.appendChild(card)})}
+function setExpiryClass(el,expiry){el.classList.remove('expired','expiring');if(!expiry)return;const t=new Date();t.setHours(0,0,0,0);const d=new Date(expiry);d.setHours(0,0,0,0);const diff=Math.floor((d-t)/86400000);if(diff<0)el.classList.add('expired');else if(diff<=30)el.classList.add('expiring')}
+
+function showRegister(){hideAllScreens();editingId=null;selectedImageData=null;$('formScreen').classList.remove('hidden');$('formTitle').textContent='備品登録';clearForm();refreshLocationList();refreshStoreList()}
+function clearForm(){['name','spec','quantity','obtained','expiry','price','memo'].forEach(id=>$(id).value='');$('cameraInput').value='';$('fileInput').value='';$('preview').src='';$('preview').classList.add('hidden')}
+function takePhoto(){$('cameraInput').click()}function selectPhoto(){$('fileInput').click()}
+function handleImage(e){const f=e.target.files[0];if(!f)return;if(!f.type.startsWith('image/')){alert('画像ファイルを選択してください。');return}const r=new FileReader();r.onload=x=>{selectedImageData=x.target.result;$('preview').src=selectedImageData;$('preview').classList.remove('hidden')};r.readAsDataURL(f)}
+$('cameraInput').addEventListener('change',handleImage);$('fileInput').addEventListener('change',handleImage);
+async function saveItem(){const name=$('name').value.trim();if(!name){alert('名称を入力してください。');return}const now=new Date().toISOString();let item;if(editingId){const old=await getItem(editingId);if(!old)return;item={...old,name,spec:$('spec').value.trim(),quantity:$('quantity').value,location:$('location').value,obtained:$('obtained').value,expiry:$('expiry').value,store:$('store').value,price:$('price').value,memo:$('memo').value.trim(),updatedAt:now};if(selectedImageData)item.image=selectedImageData}else{item={id:createId(),name,spec:$('spec').value.trim(),quantity:$('quantity').value,image:selectedImageData||'',location:$('location').value,obtained:$('obtained').value,expiry:$('expiry').value,store:$('store').value,price:$('price').value,memo:$('memo').value.trim(),createdAt:now,updatedAt:now}};const s=getSettings();if(item.location&&!s.locations.includes(item.location))s.locations.push(item.location);if(item.store&&!s.stores.includes(item.store))s.stores.push(item.store);saveSettings(s);await saveToDB(item);alert(editingId?'変更を保存しました。':'登録しました。');showDetail(item.id)}
+async function editItem(id){const item=await getItem(id);if(!item)return;editingId=id;selectedImageData=null;hideAllScreens();$('formScreen').classList.remove('hidden');$('formTitle').textContent='備品を編集';$('name').value=item.name||'';$('spec').value=item.spec||'';$('quantity').value=item.quantity??'';$('obtained').value=item.obtained||'';$('expiry').value=item.expiry||'';$('price').value=item.price||'';$('memo').value=item.memo||'';$('cameraInput').value='';$('fileInput').value='';refreshLocationList(item.location||'');refreshStoreList(item.store||'');if(item.image){$('preview').src=item.image;$('preview').classList.remove('hidden')}else $('preview').classList.add('hidden')}
+function editCurrentItem(){if(currentItemId)editItem(currentItemId)}
+async function showDetail(id){const item=await getItem(id);if(!item)return;currentItemId=id;hideAllScreens();$('detailScreen').classList.remove('hidden');const c=$('detailContent');c.innerHTML='';if(item.image){const im=document.createElement('img');im.className='detail-image';im.src=item.image;im.alt=item.name||'';c.appendChild(im)}addDetail(c,'名称',item.name);addDetail(c,'仕様（サイズ）',item.spec);addDetail(c,'個数',item.quantity);addDetail(c,'保管場所',item.location);addDetail(c,'入手時期',item.obtained);const er=addDetail(c,'保管期限',item.expiry);if(item.expiry)setExpiryClass(er.querySelector('.detail-value'),item.expiry);addDetail(c,'購入先',item.store);addDetail(c,'価格',item.price?Number(item.price).toLocaleString()+' 円':'');addDetail(c,'備考',item.memo)}
+function addDetail(c,label,value){const r=document.createElement('div');r.className='detail-row';const l=document.createElement('div');l.className='detail-label';l.textContent=label;const v=document.createElement('div');v.className='detail-value';v.textContent=value||'－';r.append(l,v);c.appendChild(r);return r}
+async function deleteCurrentItem(){if(!currentItemId)return;const item=await getItem(currentItemId);if(!item||!confirm('「'+item.name+'」を削除しますか？'))return;await deleteFromDB(currentItemId);currentItemId=null;alert('削除しました。');showHome()}
+
+async function showMaintenance(){hideAllScreens();$('maintenanceScreen').classList.remove('hidden');const s=getSettings(),items=await getAllItems();renderSettingList('locationMaintenance',s.locations,'location',items);renderSettingList('storeMaintenance',s.stores,'store',items)}
+function renderSettingList(id,list,type,items){const c=$(id);c.innerHTML='';list.forEach((v,i)=>{const count=items.filter(x=>(x[type]||'')===v).length;const row=document.createElement('div');row.className='setting-row';const label=document.createElement('div');label.innerHTML='<b>'+escapeHtml(v)+'</b>'+(count?'<div class="setting-used">登録済み '+count+'件で使用中</div>':'');const b=document.createElement('button');b.className='danger';b.textContent='削除';b.onclick=()=>removeCandidate(type,i,v,count);row.append(label,b);c.appendChild(row)})}
+function escapeHtml(v){const d=document.createElement('div');d.textContent=v;return d.innerHTML}
+async function removeCandidate(type,index,value,count){const label=type==='location'?'保管場所':'購入先';if(count){if(!confirm('「'+value+'」は登録済み '+count+'件で使用中です。\n\n候補から削除しますか？\n\n※登録済みデータは変更されません。'))return;if(!confirm('もう一度確認します。\n「'+value+'」を候補から削除しますか？\n\nOK：削除する\nキャンセル：削除しない'))return}else if(!confirm('「'+value+'」を候補から削除しますか？'))return;const s=getSettings(),arr=type==='location'?s.locations:s.stores;arr.splice(index,1);saveSettings(s);await showMaintenance();alert(label+'の候補を削除しました。登録済みデータは変更していません。')}
+function addLocationFromSettings(){addCandidate('location')}function addStoreFromSettings(){addCandidate('store')}
+async function addCandidate(type){const label=type==='location'?'保管場所':'購入先';const v=prompt('追加する'+label+'を入力してください。');if(v===null)return;const n=v.trim();if(!n)return;const s=getSettings(),arr=type==='location'?s.locations:s.stores;if(arr.includes(n)){alert('すでに登録されています。');return}arr.push(n);saveSettings(s);await showMaintenance()}
+
+async function exportDatabase(){const items=await getAllItems(),s=getSettings();const data={formatVersion:4,dbName:activeDbName,exportedAt:new Date().toISOString(),settings:s,items};await saveCatalog({name:activeDbName,dbName:activeDbName,settings:s,items:JSON.parse(JSON.stringify(items)),savedAt:new Date().toISOString()});downloadJson(data,activeDbName+'_DB_'+today()+'.json');await refreshSavedDbSelector();alert('「'+activeDbName+'」を保存しました。\n\n次回から「DBを選択」でこのDBを選べます。')}
+function exportBackup(){exportDatabase()}
+function downloadJson(data,name){const blob=new Blob([JSON.stringify(data)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}function today(){return new Date().toISOString().slice(0,10)}
+async function openDbSelector(){const box=$('savedDbSelector');box.classList.toggle('hidden');if(!box.classList.contains('hidden'))await refreshSavedDbSelector()}
+async function refreshSavedDbSelector(){const s=$('savedDbSelect'),list=await getCatalogs();list.sort((a,b)=>String(a.name).localeCompare(String(b.name),'ja'));s.innerHTML='<option value="">保存済みDBを選択</option>';list.forEach(x=>{const o=document.createElement('option');o.value=x.name;o.textContent=x.name;s.appendChild(o)})}
+async function loadSelectedSavedDb(){const name=$('savedDbSelect').value;if(!name){alert('DBを選択してください。');return}const data=await getCatalog(name);if(!data){alert('保存済みDBが見つかりません。');return}if(!confirm('保存済みDB「'+name+'」を開きますか？\n\n現在のDBの未保存変更は引き継がれません。'))return;await loadDatabaseData(data);$('savedDbSelector').classList.add('hidden');alert('DBを開きました。\n\n'+name+'：'+(data.items||[]).length+'件')}
+async function loadDatabaseData(data){await clearDB();for(const raw of data.items||[]){if(!raw||typeof raw!=='object')continue;const item={...raw,id:raw.id?String(raw.id):createId()};const now=new Date().toISOString();if(!item.createdAt)item.createdAt=now;if(!item.updatedAt)item.updatedAt=now;await saveToDB(item)}setSettings({locations:Array.isArray(data.settings?.locations)?data.settings.locations:DEFAULT_LOCATIONS,stores:Array.isArray(data.settings?.stores)?data.settings.stores:DEFAULT_STORES});activeDbName=data.dbName||data.name||'備品管理';updateDbName();$('searchInput').value='';imageFilter='all';setImageFilter('all')}
+async function newDatabase(){const v=prompt('新しいDB名を入力してください。\n例：園芸用品、工具、家電など');if(v===null)return;const name=v.trim();if(!name)return;if(!confirm('新しいDB「'+name+'」を作成しますか？\n\n現在のDBを保存していない場合は、先に「現在のDBを保存」してください。'))return;await clearDB();activeDbName=name;updateDbName();setSettings({locations:[...DEFAULT_LOCATIONS],stores:[...DEFAULT_STORES]});$('searchInput').value='';imageFilter='all';setImageFilter('all');await refreshSavedDbSelector();alert('新しいDBを作成しました。\n\nまだ「保存済みDB」にはなっていません。\n必要なら「現在のDBを保存」を押してください。')}
+async function importDatabase(e){const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data.items))throw new Error('DBファイルの形式が不正です。');data.dbName=data.dbName||f.name.replace(/\.json$/i,'');await saveCatalog({name:data.dbName,dbName:data.dbName,settings:{locations:Array.isArray(data.settings?.locations)?data.settings.locations:DEFAULT_LOCATIONS,stores:Array.isArray(data.settings?.stores)?data.settings.stores:DEFAULT_STORES},items:data.items,savedAt:new Date().toISOString()});await loadDatabaseData(data);await refreshSavedDbSelector();alert('DBファイルを読み込みました。\n\n'+data.dbName+'：'+data.items.length+'件')}catch(err){alert('DBの読み込みに失敗しました。\n\n'+err.message)}e.target.value=''}
+
+async function mergeBackup(e){const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data.items))throw new Error('バックアップ形式が不正です。');const current=new Map((await getAllItems()).map(x=>[String(x.id),x]));let add=0,upd=0;for(const raw of data.items){let item={...raw};let id=item.id?String(item.id):createId();item.id=id;if(current.has(id)){const old=current.get(id);if(!Object.prototype.hasOwnProperty.call(item,'image'))item.image=old.image||'';if(!item.createdAt)item.createdAt=old.createdAt;item.updatedAt=new Date().toISOString();upd++}else{const now=new Date().toISOString();item.createdAt=item.createdAt||now;item.updatedAt=item.updatedAt||now;add++}await saveToDB(item)}const s=getSettings();for(const x of data.settings?.locations||[])if(x&&!s.locations.includes(x))s.locations.push(x);for(const x of data.settings?.stores||[])if(x&&!s.stores.includes(x))s.stores.push(x);saveSettings(s);await refreshList();alert('バックアップを統合しました。\n\n新規追加：'+add+'件\n更新：'+upd+'件')}catch(err){alert('統合に失敗しました。\n\n'+err.message)}e.target.value=''}
+async function clearCache(){if(!confirm('キャッシュをクリアして再読み込みします。\n\n備品データは削除されません。'))return;try{for(const k of await caches.keys())await caches.delete(k);for(const r of await navigator.serviceWorker.getRegistrations())await r.update()}catch(e){}location.reload()}
+
+async function init(){await openDB();updateDbName();refreshLocationList();refreshStoreList();await refreshList();await refreshSavedDbSelector()}
 init();
-
-if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("sw.js?v=3")
-      .catch(error=>console.log("Service Worker:",error));
-  });
-}
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=5').catch(console.log));
 </script>
-</body>
-</html>
+</body></html>
